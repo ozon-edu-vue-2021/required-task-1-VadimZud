@@ -18,7 +18,6 @@ let loaderTimeout;
  * Отправляется первый запрос за картинками, юез параметров т.к. с дефолтными настройками.
  */
 const initialState = function () {
-    action.disabled = false;
     getPictures();
 }
 
@@ -52,6 +51,7 @@ const getPictureInfo = function (id = 0) {
  * Меняет ситили, ничего не возвращает.
  */
 const showLoader = function () {
+    action.disabled = true;
     loader.style.visibility = 'visible';
 }
 
@@ -62,7 +62,7 @@ const showLoader = function () {
 const hideLoader = function () {
     loaderTimeout = setTimeout(function () {
         loader.style.visibility = 'hidden';
-        loaderTimeout.clearTimeout();
+        action.disabled = false;
     }, 700);
 }
 
@@ -91,12 +91,11 @@ const renderPictures = function (list) {
         throw Error(`Pictures not defined. The list length: ${list.length}`);
     }
 
-    const clone = templateImageCard.content.cloneNode(true);
     const fragment = document.createDocumentFragment();
 
     list.forEach(function (element) {
+        const clone = templateImageCard.content.cloneNode(true);
         const link = clone.querySelector('a');
-
         link.href = element.url;
         link.dataset.id = element.id;
 
@@ -125,7 +124,9 @@ const renderPopupPicture = function (picture) {
     img.src = cropImage(picture.download_url, 2);
     img.alt = picture.author;
     author.textContent = picture.author;
-    img.width = picture.width / 10;
+    let factor = window.innerHeight / picture.height;
+    if (factor < 10) factor = 10;
+    img.width = picture.width / factor;
     link.href = picture.download_url;
 
     popupContainer.innerHTML = '';
@@ -151,7 +152,7 @@ const togglePopup = function () {
  */
 const actionHandler = function (evt) {
     evt.preventDefault();
-    const nextPage = evt.currentTarget.dataset.page;
+    const nextPage = +evt.currentTarget.dataset.page;
     evt.currentTarget.dataset.page = nextPage + 1;
 
     if (nextPage > MAX_PAGE_IAMGES) {
@@ -170,9 +171,9 @@ const actionHandler = function (evt) {
  */
 const imageHandler = function (evt) {
     evt.preventDefault();
-
-    if (evt.target.closest('a')) {
-        getPictureInfo(evt.target.dataset.id);
+    let targetA = evt.target.closest('a');
+    if (targetA) {
+        getPictureInfo(targetA.dataset.id);
     }
 }
 
