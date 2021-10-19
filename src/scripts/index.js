@@ -28,6 +28,7 @@ const initialState = function() {
  * @param {number} limit
  */
 const getPictures = function(page = 1, limit = 10) {
+  action.disabled = true;
   showLoader();
   fetch(`https://picsum.photos/v2/list?page=${page};limit=${limit}`)
     .then(function(response) {
@@ -59,7 +60,6 @@ const getPictureInfo = function(id = 0) {
  * Меняет ситили, ничего не возвращает.
  */
 const showLoader = function() {
-  action.disabled = true;
   loader.style.visibility = "visible";
 };
 
@@ -70,7 +70,6 @@ const showLoader = function() {
 const hideLoader = function() {
   loaderTimeout = setTimeout(function() {
     loader.style.visibility = "hidden";
-    action.disabled = false;
   }, 700);
 };
 
@@ -115,7 +114,41 @@ const renderPictures = function(list) {
   });
 
   container.appendChild(fragment);
+  action.disabled = false;
   hideLoader();
+};
+
+/**
+ * Функция возвращает ширину изображения для popup,
+ * такую, чтобы изображение влезло на экран
+ * @param {object} picture 
+ * @returns {number}
+ */
+const calcPopupImageWidth = function(picture) {
+  let maxHeight = window.innerHeight - 100;
+  let maxWidth = window.innerWidth - 100;
+  
+  let hFactor = picture.height / maxHeight;
+  let wFactor = picture.width / maxWidth;
+
+  let factor = hFactor > wFactor ? hFactor : wFactor;
+  if (factor < 1) {
+    factor = 1;
+  }
+  return picture.width / factor;
+}
+
+/**
+ * Обработчик для события resize window.
+ * Адаптирует размер изображения в popap.
+ * Для работы в обьект обработчика следует
+ * установить поля img и picture, использованные
+ * при создании popap
+ */
+const replacePopupImageHandler = {
+  handleEvent: function(evt) {
+    this.img.style.width = calcPopupImageWidth(this.picture) + 'px';
+  }
 };
 
 /**
@@ -129,25 +162,29 @@ const renderPopupPicture = function(picture) {
   const link = clone.querySelector("a");
   const author = clone.querySelector(".author");
 
+  author.textContent = picture.author;
+  link.href = picture.download_url;
+  img.style.width = calcPopupImageWidth(picture) + 'px';
   img.src = cropImage(picture.download_url, 2);
   img.alt = picture.author;
-  author.textContent = picture.author;
-  let factor = window.innerHeight / picture.height;
-  if (factor < 10) factor = 10;
-  img.width = picture.width / factor;
-  link.href = picture.download_url;
 
   popupContainer.innerHTML = "";
   popupContainer.appendChild(clone);
+
+  replacePopupImageHandler.img = img;
+  replacePopupImageHandler.picture = picture;
+  window.addEventListener('resize', replacePopupImageHandler);
+
   hideLoader();
-  togglePopup();
+  popup.classList.add("open");
 };
 
 /**
- * Функция переклбчает класс открытия на попапе
+ * Функция прячет popup
  */
-const togglePopup = function() {
-  popup.classList.toggle("open");
+const hidePopup = function() {
+  window.removeEventListener('resize', replacePopupImageHandler);
+  popup.classList.remove("open");
 };
 
 /**
@@ -189,6 +226,6 @@ const imageHandler = function(evt) {
 
 action.addEventListener("click", actionHandler);
 container.addEventListener("click", imageHandler);
-popupClose.addEventListener("click", togglePopup);
+popupClose.addEventListener("click", hidePopup);
 
 initialState();
