@@ -121,13 +121,13 @@ const renderPictures = function(list) {
 /**
  * Функция возвращает ширину изображения для popup,
  * такую, чтобы изображение влезло на экран
- * @param {object} picture 
+ * @param {object} picture
  * @returns {number}
  */
 const calcPopupImageWidth = function(picture) {
   let maxHeight = window.innerHeight - 100;
   let maxWidth = window.innerWidth - 100;
-  
+
   let hFactor = picture.height / maxHeight;
   let wFactor = picture.width / maxWidth;
 
@@ -136,7 +136,7 @@ const calcPopupImageWidth = function(picture) {
     factor = 1;
   }
   return picture.width / factor;
-}
+};
 
 /**
  * Обработчик для события resize window.
@@ -147,7 +147,7 @@ const calcPopupImageWidth = function(picture) {
  */
 const replacePopupImageHandler = {
   handleEvent: function(evt) {
-    this.img.style.width = calcPopupImageWidth(this.picture) + 'px';
+    this.img.style.width = calcPopupImageWidth(this.picture) + "px";
   }
 };
 
@@ -164,7 +164,7 @@ const renderPopupPicture = function(picture) {
 
   author.textContent = picture.author;
   link.href = picture.download_url;
-  img.style.width = calcPopupImageWidth(picture) + 'px';
+  img.style.width = calcPopupImageWidth(picture) + "px";
   img.src = cropImage(picture.download_url, 2);
   img.alt = picture.author;
 
@@ -173,7 +173,7 @@ const renderPopupPicture = function(picture) {
 
   replacePopupImageHandler.img = img;
   replacePopupImageHandler.picture = picture;
-  window.addEventListener('resize', replacePopupImageHandler);
+  window.addEventListener("resize", replacePopupImageHandler);
 
   hideLoader();
   popup.classList.add("open");
@@ -183,7 +183,7 @@ const renderPopupPicture = function(picture) {
  * Функция прячет popup
  */
 const hidePopup = function() {
-  window.removeEventListener('resize', replacePopupImageHandler);
+  window.removeEventListener("resize", replacePopupImageHandler);
   popup.classList.remove("open");
 };
 
