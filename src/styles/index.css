@@ -9,7 +9,7 @@ body {
 img {
   width: 100%;
   max-width: 100%;
-  display: bloсk;
+  display: block;
 }
 
 a {
@@ -81,7 +81,6 @@ main {
   margin-bottom: 20px;
   column-count: 4;
   column-gap: 5px;
-  min-height: 400px;
 }
 
 a {
@@ -89,19 +88,6 @@ a {
   border-radius: 6px;
   overflow: hidden;
   width: 100%;
-  min-height: 100px;
-}
-
-a:nth-child(n) {
-  background-color: #efebe9;
-}
-
-a:nth-child(2n) {
-  background-color: #d7ccc8;
-}
-
-a:nth-child(3n) {
-  background-color: #bcaaa4;
 }
 
 /* Popup style */
